@@ -8,7 +8,6 @@ import sys
 from datetime import datetime
 from time import strftime
 
-
 try:
     target = input("[*] Enter Target IP address :")
     min_port = input("[*] Enter Min Port Number: ")
@@ -39,8 +38,8 @@ RSTACK = 0x14
 def checkhost(ip):
     conf.verb = 0
     try:
-        ping = sr1(IP(dst=ip) / ICMP())
-        print("\n[*] Traget is Up, Beginning Scan...")
+        sr1(IP(dst=ip) / ICMP())
+        print("\n[*] Target is Up, Beginning Scan...")
     except Exception:
         print("\n[!] Couldn't Resolve Target")
         print("[!] Exiting...")
@@ -68,7 +67,6 @@ for port in ports:
     status = scanport(port)
     if status == True:
         print("Port " + str(port) + ": Open")
-
 
 stop_clock = datetime.now()
 total_time = stop_clock - start_clock
