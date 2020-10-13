@@ -3,11 +3,11 @@ from logging import getLogger, ERROR
 from scapy.layers.inet import ICMP, IP, TCP
 from scapy.sendrecv import sr1
 
-getLogger("scapy.runtime").setLevel(ERROR)
 import sys
 from datetime import datetime
 from time import strftime
 
+getLogger("scapy.runtime").setLevel(ERROR)
 try:
     target = input("[*] Enter Target IP address :")
     min_port = input("[*] Enter Min Port Number: ")
