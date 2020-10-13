@@ -1,9 +1,9 @@
 from logging import getLogger, ERROR
 
 from scapy.layers.inet import ICMP, IP, TCP
+from scapy.sendrecv import sr1
 
 getLogger("scapy.runtime").setLevel(ERROR)
-from scapy.all import *
 import sys
 from datetime import datetime
 from time import strftime
