@@ -1,14 +1,14 @@
 from logging import getLogger, ERROR
 
-# from scapy.config import conf
-# from scapy.layers.inet import ICMP, IP, TCP, UDP
-# from scapy.sendrecv import sr1
-from scapy.all import *
-
+from scapy.config import conf
+from scapy.layers.inet import ICMP, IP, TCP, UDP
+from scapy.sendrecv import sr1
+import scapy.volatile
 
 import sys, argparse
 from datetime import datetime
 from time import strftime
+
 
 getLogger("scapy.runtime").setLevel(ERROR)
 try:
@@ -40,7 +40,7 @@ RSTACK = 0x14
 def checkhost(ip):
     conf.verb = 0
     try:
-        ping = sr1(IP(dst=ip) / ICMP())
+        sr1(IP(dst=ip) / ICMP())
         print("\n[*] Target is Up, Beginning Scan...")
     except Exception:
         print("\n[!] Couldn't Resolve Target")
@@ -50,7 +50,7 @@ def checkhost(ip):
 
 def scanport(port):
     try:
-        srcport = RandShort()
+        srcport = scapy.volatile.RandShort()
         conf.verb = 0
         SYNACKpkt = sr1(IP(dst=target) / TCP(sport=srcport, dport=port, flags="S"))
         pktflags = SYNACKpkt.getlayer(TCP).flags
@@ -63,6 +63,9 @@ def scanport(port):
         send(RSTpkt)
     except KeyboardInterrupt:
         RSTpkt = IP(dst=target) / TCP(sport=srcport, dport=port, flags="R")
+        send(RSTpkt)
+        print("\n[*] User Requested Shutdown...")
+        print("[*] Exiting...")
 
 
 checkhost(target)
