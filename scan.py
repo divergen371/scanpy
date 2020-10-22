@@ -1,9 +1,12 @@
 from logging import getLogger, ERROR
 
-from scapy.layers.inet import ICMP, IP, TCP
-from scapy.sendrecv import sr1
+# from scapy.config import conf
+# from scapy.layers.inet import ICMP, IP, TCP, UDP
+# from scapy.sendrecv import sr1
+from scapy.all import *
 
-import sys
+
+import sys, argparse
 from datetime import datetime
 from time import strftime
 
@@ -30,7 +33,6 @@ except KeyboardInterrupt:
     sys.exit(1)
 
 ports = range(int(min_port), int(max_port) + 1)
-start_clock = datetime.now()
 SYNACK = 0x12
 RSTACK = 0x14
 
@@ -38,7 +40,7 @@ RSTACK = 0x14
 def checkhost(ip):
     conf.verb = 0
     try:
-        sr1(IP(dst=ip) / ICMP())
+        ping = sr1(IP(dst=ip) / ICMP())
         print("\n[*] Target is Up, Beginning Scan...")
     except Exception:
         print("\n[!] Couldn't Resolve Target")
@@ -47,28 +49,37 @@ def checkhost(ip):
 
 
 def scanport(port):
-    srcport = RandShort()
-    conf.verb = 0
-    SYNACKpkt = sr1(IP(dst=target) / TCP(sport=srcport, dport=port, flags="S"))
-    pktflags = SYNACKpkt.getlayer(TCP).flags
-    if pktflags == SYNACK:
-        return True
-    else:
-        return False
+    try:
+        srcport = RandShort()
+        conf.verb = 0
+        SYNACKpkt = sr1(IP(dst=target) / TCP(sport=srcport, dport=port, flags="S"))
+        pktflags = SYNACKpkt.getlayer(TCP).flags
+        if pktflags == SYNACK:
+            return True
+        else:
+            return False
 
-    RSTpkt = IP(dst=target) / TCP(sport=srcport, dport=port, flags="R")
-    send(RSTpkt)
+        RSTpkt = IP(dst=target) / TCP(sport=srcport, dport=port, flags="R")
+        send(RSTpkt)
+    except KeyboardInterrupt:
+        RSTpkt = IP(dst=target) / TCP(sport=srcport, dport=port, flags="R")
 
 
 checkhost(target)
 print("[*] Scanning Started at " + strftime("%H:%M:%S") + "!\n")
 
-for port in ports:
-    status = scanport(port)
-    if status == True:
-        print("Port " + str(port) + ": Open")
 
-stop_clock = datetime.now()
-total_time = stop_clock - start_clock
-print("\n[*] Scanning Finished:)")
-print("[*] Total Scan Duration: " + str(total_time))
+def scan():
+    for port in ports:
+        status = scanport(port)
+        if status == True:
+            print("Port " + str(port) + ": Open")
+
+
+if __name__ == "__main__":
+    start_clock = datetime.now()
+    scan()
+    stop_clock = datetime.now()
+    total_time = stop_clock - start_clock
+    print("\n[*] Scanning Finished:)")
+    print("[*] Total Scan Duration: " + str(total_time))
