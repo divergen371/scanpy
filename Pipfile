@@ -11,6 +11,11 @@ pylint = "*"
 scapy = "*"
 netaddr = "*"
 netifaces = "*"
+colorama = "*"
+matplotlib = "*"
+pyx = "*"
+ipython = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.9"
