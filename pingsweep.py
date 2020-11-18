@@ -4,7 +4,7 @@ from time import strftime
 import threading
 from queue import Queue
 from scapy.layers.inet import IP, ICMP
-from scapy.sendrecv import sr
+from scapy.sendrecv import sr, sr1
 
 import netaddr
 
@@ -19,7 +19,9 @@ ip_range = netaddr.IPNetwork(network_cidr)
 
 all_hosts = list(ip_range)
 
-
+iface = "enp0s25"
+time_out = 3
+waking_host = []
 print("[*] Target network: ", ip_range)
 
 
@@ -44,7 +46,13 @@ print("[*] Target network: ", ip_range)
 
 
 def sweep(ip):
-    ans, unans = sr(IP(dst=all_hosts[ip]) / ICMP())
+    ans, unans = sr(
+        IP(dst=all_hosts[ip]) / ICMP(), timeout=time_out, iface=iface, verbose=0
+    )
+    if len(ans) == 0:
+        print("[*] {} is down".format(all_hosts[ip]))
+    elif len(ans) == 1:
+        print("[*] {} is waking".format(all_hosts[ip]))
 
 
 q = Queue()
@@ -57,8 +65,8 @@ def threader():
 
     """
     while True:
-        tasks = q.get()
-        sweep(tasks)
+        worker = q.get()
+        sweep(worker)
         q.task_done()
 
 
@@ -75,5 +83,5 @@ for worker in range(len(all_hosts)):
 q.join()
 
 total_duration = datetime.now() - start_time
-
+print("[*] number of waking host {}".format(len(waking_host)))
 print("[*]Total time duration: " + str(total_duration))

@@ -57,7 +57,7 @@ def check_alive(ip):
     print("[*] Scanning started at " + strftime("%H:%M:%S") + "!\n")
     try:
         sr1(IP(dst=ip) / ICMP())
-        print("\n[*] Target found! %s is awake" % target_ip)
+        print("\n[*] Target found! %s is waking" % target_ip)
     except Exception:
         print("\n[!] Target not found")
         print("[*] Exiting...")
