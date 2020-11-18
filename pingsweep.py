@@ -5,6 +5,8 @@ from datetime import datetime
 from time import strftime
 import threading
 from queue import Queue
+from scapy.layers.inet import IP, ICMP
+from scapy.sendrecv import sr
 
 init()
 print_lock = threading.Lock()
@@ -17,32 +19,32 @@ ip_range = netaddr.IPNetwork(network_cidr)
 
 all_hosts = list(ip_range)
 
-# subprocess to hide the console window
-# info = subprocess.STARTUPINFO()
-# info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-# info.wShowWindow = subprocess.SW_HIDE
 
 print("[*] Target network: ", ip_range)
 
 
-def sweep(ip):
-    output = subprocess.Popen(
-        ["ping", "-n", "1", "-w", "150", str(all_hosts[ip])],
-        stdout=subprocess.PIPE,
-    ).communicate()[0]
+# def sweep(ip):
+#     output = subprocess.Popen(
+#         ["ping", "-n", "1", "-w", "150", str(all_hosts[ip])],
+#         stdout=subprocess.PIPE,
+#     ).communicate()[0]
+#
+#     with print_lock:
+#         print("\033[93m", end="")
+#         if "Reply" in output.decode("utf-8"):
+#             print(str(all_hosts[ip]), "033[32m" + "was awake.")
+#         elif "Destination host unreachable" in output.decode("utf-8"):
+#             # print unreachable
+#             pass
+#         elif "Request timed out" in output.decode("utf-8"):
+#             # print timeout
+#             pass
+#         else:
+#             print("UNKNOWN", end="")
 
-    with print_lock:
-        print("\033[93m", end="")
-        if "Reply" in output.decode("utf-8"):
-            print(str(all_hosts[ip]), "033[32m" + "was awake.")
-        elif "Destination host unreachable" in output.decode("utf-8"):
-            # print unreachable
-            pass
-        elif "Request timed out" in output.decode("utf-8"):
-            # print timeout
-            pass
-        else:
-            print("UNKNOWN", end="")
+
+def sweep(ip):
+    ans, unans = sr(IP(dst=all_hosts[ip]) / ICMP())
 
 
 q = Queue()
