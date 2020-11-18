@@ -1,6 +1,4 @@
-import netaddr
-import subprocess
-from colorama import init
+# from colorama import init
 from datetime import datetime
 from time import strftime
 import threading
@@ -8,10 +6,12 @@ from queue import Queue
 from scapy.layers.inet import IP, ICMP
 from scapy.sendrecv import sr
 
-init()
+import netaddr
+
+# init()
 print_lock = threading.Lock()
 
-network_cidr = input("Enterter the target (e.g 192.168.1.0/24)")
+network_cidr = input("Enter the target (e.g 192.168.1.0/24)")
 
 start_time = datetime.now()
 
@@ -51,6 +51,10 @@ q = Queue()
 
 
 def threader():
+    """
+    # create new task and
+    # holding tasks till the end of works
+    """
     while True:
         worker = q.get()
         sweep(worker)
