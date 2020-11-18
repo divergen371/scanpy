@@ -52,12 +52,13 @@ q = Queue()
 
 def threader():
     """
-    # create new task and
-    # holding tasks till the end of works
+
+    Extract the task from the queue and assign it to the sweep function.
+
     """
     while True:
-        worker = q.get()
-        sweep(worker)
+        tasks = q.get()
+        sweep(tasks)
         q.task_done()
 
 
@@ -66,11 +67,11 @@ for x in range(100):
     t.daemon = True
     t.start()
 
-
+# Create as many tasks as the number of hosts and pool them into a queue.(Send tasks to threader)
 for worker in range(len(all_hosts)):
     q.put(worker)
 
-
+# block until complete process all task.
 q.join()
 
 total_duration = datetime.now() - start_time
