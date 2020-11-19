@@ -25,44 +25,23 @@ waking_host = []
 print("[*] Target network: ", ip_range)
 
 
-# def sweep(ip):
-#     output = subprocess.Popen(
-#         ["ping", "-n", "1", "-w", "150", str(all_hosts[ip])],
-#         stdout=subprocess.PIPE,
-#     ).communicate()[0]
-#
-#     with print_lock:
-#         print("\033[93m", end="")
-#         if "Reply" in output.decode("utf-8"):
-#             print(str(all_hosts[ip]), "033[32m" + "was awake.")
-#         elif "Destination host unreachable" in output.decode("utf-8"):
-#             # print unreachable
-#             pass
-#         elif "Request timed out" in output.decode("utf-8"):
-#             # print timeout
-#             pass
-#         else:
-#             print("UNKNOWN", end="")
-
-
 def sweep(ip):
     """
     Generate a packet containing the ICMP header and Confirmation of control messages.
 
     """
     reply = sr1(
-        IP(dst=all_hosts[ip]) / ICMP(), timeout=time_out, iface=iface, verbose=0
+        IP(dst=str(all_hosts[ip])) / ICMP(), timeout=time_out, iface=iface, verbose=0
     )
     with print_lock:
-        if int(reply.getlayer(ICMP).type) == 3 and int(
-            reply.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13]
+        if reply is None:
+            print("[*] {} is not exist.".format(all_hosts[ip]))
+        elif (
+            int(reply.getlayer(ICMP).type) == 3
+            and int(reply.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13])
+            and reply is None
         ):
             print("[*] {} is down".format(all_hosts[ip]))
-        # elif int(
-        #     reply.getlayer(ICMP) == 3
-        #     and int(reply.getlayer(ICMP).code) in [1, 2, 3, 9, 10, 13]
-        # ):
-        #     print("[*] {} is ignore ICMP".format(all_hosts[ip]))
         else:
             print("[*] {} is waking".format(all_hosts[ip]))
             waking_host.append(all_hosts[ip])
