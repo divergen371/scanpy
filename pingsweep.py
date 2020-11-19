@@ -1,6 +1,4 @@
-# from colorama import init
 from datetime import datetime
-from time import strftime
 import threading
 from queue import Queue
 from scapy.layers.inet import IP, ICMP
@@ -8,7 +6,6 @@ from scapy.sendrecv import sr, sr1
 
 import netaddr
 
-# init()
 print_lock = threading.Lock()
 
 network_cidr = input("Enter the target (e.g 192.168.1.0/24)")
@@ -62,18 +59,19 @@ def threader():
         q.task_done()
 
 
-for x in range(100):
-    t = threading.Thread(target=threader)
-    t.daemon = True
-    t.start()
+if __name__ == "__main__":
+    for x in range(100):
+        t = threading.Thread(target=threader)
+        t.daemon = True
+        t.start()
 
-# Create as many tasks as the number of hosts and pool them into a queue.(Send tasks to threader)
-for worker in range(len(all_hosts)):
-    q.put(worker)
+    # Create as many tasks as the number of hosts and pool them into a queue.(Send tasks to threader)
+    for worker in range(len(all_hosts)):
+        q.put(worker)
 
-# block until complete process all task.
-q.join()
+    # block until complete process all task.
+    q.join()
 
-total_duration = datetime.now() - start_time
-print("[*] number of waking host {}".format(len(waking_host)))
-print("[*]Total time duration: " + str(total_duration))
+    total_duration = datetime.now() - start_time
+    print("[*] number of waking host {}".format(len(waking_host)))
+    print("[*]Total time duration: " + str(total_duration))
