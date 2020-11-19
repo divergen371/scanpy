@@ -19,7 +19,7 @@ ip_range = netaddr.IPNetwork(network_cidr)
 
 all_hosts = list(ip_range)
 
-iface = "wlan0"
+iface = "enp0s25"
 time_out = 3
 waking_host = []
 print("[*] Target network: ", ip_range)
@@ -49,16 +49,17 @@ def sweep(ip):
     reply = sr1(
         IP(dst=all_hosts[ip]) / ICMP(), timeout=time_out, iface=iface, verbose=0
     )
-    if reply is None:
-        print("[*] {} is down".format(all_hosts[ip]))
-    elif int(
-        reply.getlayer(ICMP) == 3
-        and int(reply.getlayer(ICMP).code) in [1, 2, 3, 9, 10, 13]
-    ):
-        print("[*] {} is ignore ICMP".format(all_hosts[ip]))
-    else:
-        print("[*] {} is waking".format(all_hosts[ip]))
-        waking_host.append(all_hosts[ip])
+    with print_lock:
+        if int(reply.getlayer(ICMP).type) == 3:
+            print("[*] {} is down".format(all_hosts[ip]))
+        # elif int(
+        #     reply.getlayer(ICMP) == 3
+        #     and int(reply.getlayer(ICMP).code) in [1, 2, 3, 9, 10, 13]
+        # ):
+        #     print("[*] {} is ignore ICMP".format(all_hosts[ip]))
+        else:
+            print("[*] {} is waking".format(all_hosts[ip]))
+            waking_host.append(all_hosts[ip])
 
 
 q = Queue()
