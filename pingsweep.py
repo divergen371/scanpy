@@ -1,10 +1,11 @@
 from datetime import datetime
 import threading
 from queue import Queue
-from scapy.layers.inet import IP, ICMP
+from scapy.layers.inet import IP, ICMP, TCP
 from scapy.sendrecv import sr, sr1
 
 import netaddr
+from scapy.volatile import RandShort
 
 print_lock = threading.Lock()
 
@@ -22,7 +23,7 @@ waking_host = []
 print("[*] Target network: ", ip_range)
 
 
-def sweep(ip):
+def icmp_sweep(ip):
     """
     Generate a packet containing the ICMP header and Confirmation of control messages.
 
@@ -44,6 +45,15 @@ def sweep(ip):
             waking_host.append(all_hosts[ip])
 
 
+def syn_sweep(ip):
+    src_port = RandShort()
+    reply = sr1(
+        IP(dst=all_hosts[ip]) / TCP(sport=src_port, dport=80, flags="S"),
+        timeout=time_out,
+        iface=iface,
+    )
+
+
 q = Queue()
 
 
@@ -55,7 +65,7 @@ def threader():
     """
     while True:
         worker = q.get()
-        sweep(worker)
+        icmp_sweep(worker)
         q.task_done()
 
 
