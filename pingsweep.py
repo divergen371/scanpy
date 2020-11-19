@@ -46,11 +46,17 @@ print("[*] Target network: ", ip_range)
 
 
 def sweep(ip):
+    """
+    Generate a packet containing the ICMP header and Confirmation of control messages.
+
+    """
     reply = sr1(
         IP(dst=all_hosts[ip]) / ICMP(), timeout=time_out, iface=iface, verbose=0
     )
     with print_lock:
-        if int(reply.getlayer(ICMP).type) == 3:
+        if int(reply.getlayer(ICMP).type) == 3 and int(
+            reply.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13]
+        ):
             print("[*] {} is down".format(all_hosts[ip]))
         # elif int(
         #     reply.getlayer(ICMP) == 3
