@@ -13,10 +13,10 @@ from scapy.volatile import RandShort
 getLogger("scapy.runtime").setLevel(ERROR)
 try:
     network_cidr = input("[*]Enter the target (e.g 192.168.1.0/24): ")
-    regexp = re.fullmatch(
-        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$",
-        network_cidr,
-    )
+    # regexp = re.fullmatch(
+    #     "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$",
+    #     network_cidr,
+    # )
     ip_range = netaddr.IPNetwork(network_cidr)
     all_hosts = list(ip_range)
     print("[*] Target network: ", ip_range)
@@ -31,10 +31,11 @@ waking_host = []
 print_lock = threading.Lock()
 
 
-def icmp_sweep(ip):
+def icmp_sweep(ip: int):
     """
     Generate a packet containing the ICMP header and Confirmation of control messages.
-
+    ip: int
+        Figures taken from the worker. Based on this, retrieve the target from "all_host".
     """
     reply = sr1(
         IP(dst=str(all_hosts[ip])) / ICMP(), timeout=time_out, iface=iface, verbose=0
