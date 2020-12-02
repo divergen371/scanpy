@@ -42,7 +42,7 @@ def icmp_sweep(ip: int):
     )
     with print_lock:
         if reply is None:
-            print("[*] {} is not exist.".format(all_hosts[ip]))
+            print("[*] {} is not running.".format(all_hosts[ip]))
         elif (
             int(reply.getlayer(ICMP).type) == 3
             and int(reply.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13])
@@ -57,14 +57,17 @@ def icmp_sweep(ip: int):
 def syn_sweep(ip):
     src_port = RandShort()
     reply = sr1(
-        IP(dst=all_hosts[ip]) / TCP(sport=src_port, dport=80, flags="S"),
+        IP(dst=str(all_hosts[ip])) / TCP(sport=src_port, dport=80, flags="S"),
         timeout=3,
-        iface=iface,
+        # iface=iface,
         verbose=0,
     )
     with print_lock:
-        if int(reply.getlayer(TCP).flags) in [18, 20]:
+        if reply is None:
+            print("[*] {} is not running.".format(all_hosts[ip]))
+        elif int(reply.getlayer(TCP).flags) in [18, 20]:
             print("[*] {} is waking".format(all_hosts[ip]))
+            waking_host.append(all_hosts[ip])
         else:
             print("[*] {} is state unknown.")
 
