@@ -55,18 +55,36 @@ def icmp_sweep(ip: int):
 
 
 def syn_sweep(ip):
-    src_port = RandShort()
+    SYNACK = 0x12
+    RSTACK = 0x14
     reply = sr1(
-        IP(dst=str(all_hosts[ip])) / TCP(sport=src_port, dport=80, flags="S"),
-        timeout=3,
+        IP(dst=str(all_hosts[ip])) / TCP(dport=80, flags="S"),
+        timeout=time_out,
         # iface=iface,
         verbose=0,
     )
     with print_lock:
         if reply is None:
             print("[*] {} is not running.".format(all_hosts[ip]))
-        elif int(reply.getlayer(TCP).flags) in [18, 20]:
+        elif int(reply.getlayer(TCP).flags) in [SYNACK, RSTACK]:
             print("[*] {} is waking".format(all_hosts[ip]))
+            waking_host.append(all_hosts[ip])
+        else:
+            print("[*] {} is state unknown.")
+
+
+def ack_sweep(ip):
+    RST = 0x04
+    reply = sr1(
+        IP(dst=str(all_hosts[ip])) / TCP(dport=80, flags="A"),
+        timeout=time_out,
+        verbose=0,
+    )
+    with print_lock:
+        if reply is None:
+            print("[*] {} is not running.".format(all_hosts[ip]))
+        elif int(reply.getlayer(TCP).flags) == RST:
+            print("[*] {} is waking.".format(all_hosts[ip]))
             waking_host.append(all_hosts[ip])
         else:
             print("[*] {} is state unknown.")
@@ -84,7 +102,8 @@ def threader():
     while True:
         worker = q.get()
         # icmp_sweep(worker)
-        syn_sweep(worker)
+        ack_sweep(worker)
+        # syn_sweep(worker)
         q.task_done()
 
 
