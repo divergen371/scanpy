@@ -58,8 +58,9 @@ def syn_sweep(ip):
     src_port = RandShort()
     reply = sr1(
         IP(dst=all_hosts[ip]) / TCP(sport=src_port, dport=80, flags="S"),
-        timeout=time_out,
+        timeout=5,
         iface=iface,
+        verbose=0
     )
     with print_lock:
         if reply is None:
@@ -81,7 +82,8 @@ def threader():
     """
     while True:
         worker = q.get()
-        icmp_sweep(worker)
+        # icmp_sweep(worker)
+        syn_sweep(worker)
         q.task_done()
 
 
