@@ -58,14 +58,12 @@ def syn_sweep(ip):
     src_port = RandShort()
     reply = sr1(
         IP(dst=all_hosts[ip]) / TCP(sport=src_port, dport=80, flags="S"),
-        timeout=5,
+        timeout=3,
         iface=iface,
-        verbose=0
+        verbose=0,
     )
     with print_lock:
-        if reply is None:
-            print("[*] {} is  not exist".format(all_hosts[ip]))
-        elif int(reply.getlayer(TCP).flags) in [18, 20]:
+        if int(reply.getlayer(TCP).flags) in [18, 20]:
             print("[*] {} is waking".format(all_hosts[ip]))
         else:
             print("[*] {} is state unknown.")
