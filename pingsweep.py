@@ -1,5 +1,8 @@
 from datetime import datetime
 import threading
+import sys
+import re
+from logging import ERROR, getLogger
 from queue import Queue
 from scapy.layers.inet import IP, ICMP, TCP
 from scapy.sendrecv import sr, sr1
@@ -7,20 +10,25 @@ from scapy.sendrecv import sr, sr1
 import netaddr
 from scapy.volatile import RandShort
 
-print_lock = threading.Lock()
-
-network_cidr = input("Enter the target (e.g 192.168.1.0/24)")
-
-start_time = datetime.now()
-
-ip_range = netaddr.IPNetwork(network_cidr)
-
-all_hosts = list(ip_range)
+getLogger("scapy.runtime").setLevel(ERROR)
+try:
+    network_cidr = input("[*]Enter the target (e.g 192.168.1.0/24): ")
+    regexp = re.fullmatch(
+        "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$",
+        network_cidr,
+    )
+    ip_range = netaddr.IPNetwork(network_cidr)
+    all_hosts = list(ip_range)
+    print("[*] Target network: ", ip_range)
+except KeyboardInterrupt:
+    print("\n[*] Requested shutdown...")
+    print("[*] Bye:)")
+    sys.exit(1)
 
 iface = "enp0s25"
 time_out = 3
 waking_host = []
-print("[*] Target network: ", ip_range)
+print_lock = threading.Lock()
 
 
 def icmp_sweep(ip):
@@ -52,6 +60,13 @@ def syn_sweep(ip):
         timeout=time_out,
         iface=iface,
     )
+    with print_lock:
+        if reply is None:
+            print("[*] {} is  not exist".format(all_hosts[ip]))
+        elif int(reply.getlayer(TCP).flags) in [18, 20]:
+            print("[*] {} is waking".format(all_hosts[ip]))
+        else:
+            print("[*] {} is state unknown.")
 
 
 q = Queue()
@@ -70,6 +85,7 @@ def threader():
 
 
 if __name__ == "__main__":
+    start_time = datetime.now()
     for x in range(100):
         t = threading.Thread(target=threader)
         t.daemon = True
