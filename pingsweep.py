@@ -4,6 +4,8 @@ import sys
 import re
 from logging import ERROR, getLogger
 from queue import Queue
+
+from scapy.config import conf
 from scapy.layers.inet import IP, ICMP, TCP
 from scapy.sendrecv import sr, sr1
 
@@ -25,13 +27,13 @@ except KeyboardInterrupt:
     print("[*] Bye:)")
     sys.exit(1)
 
-iface = "enp0s25"
+iface = conf.iface
 time_out = 3
 waking_host = []
 print_lock = threading.Lock()
 
 
-def icmp_sweep(ip: int):
+def icmp_ping(ip: int):
     """
     Generate a packet containing the ICMP header and Confirmation of control messages.
     ip: int
@@ -54,13 +56,13 @@ def icmp_sweep(ip: int):
             waking_host.append(all_hosts[ip])
 
 
-def syn_sweep(ip):
+def syn_ping(ip):
     SYNACK = 0x12
     RSTACK = 0x14
     reply = sr1(
         IP(dst=str(all_hosts[ip])) / TCP(dport=80, flags="S"),
         timeout=time_out,
-        # iface=iface,
+        iface=iface,
         verbose=0,
     )
     with print_lock:
@@ -73,7 +75,7 @@ def syn_sweep(ip):
             print("[*] {} is state unknown.")
 
 
-def ack_sweep(ip):
+def ack_ping(ip):
     RST = 0x04
     reply = sr1(
         IP(dst=str(all_hosts[ip])) / TCP(dport=80, flags="A"),
@@ -90,6 +92,8 @@ def ack_sweep(ip):
             print("[*] {} is state unknown.")
 
 
+def arp_ping
+
 q = Queue()
 
 
@@ -101,9 +105,9 @@ def threader():
     """
     while True:
         worker = q.get()
-        # icmp_sweep(worker)
-        ack_sweep(worker)
-        # syn_sweep(worker)
+        # icmp_ping(worker)
+        ack_ping(worker)
+        # syn_ping(worker)
         q.task_done()
 
 
