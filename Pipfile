@@ -16,6 +16,8 @@ matplotlib = "*"
 pyx = "*"
 ipython = "*"
 cryptography = "*"
+graphviz = "*"
+vpython = "*"
 
 [requires]
 python_version = "3.9"
