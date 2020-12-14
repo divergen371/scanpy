@@ -37,7 +37,7 @@ time_out = 3
 print_lock = threading.Lock()
 
 
-class Ping:
+class PingType:
     def __init__(self, ip):
         self.ip = ip
 
@@ -115,26 +115,26 @@ def threader(mode):
 
         while True:
             worker = q.get()
-            ping = Ping(worker)
-            ping.icmp_ping()
+            mode = PingType(worker)
+            mode.icmp_ping()
             q.task_done()
     if mode == "s":
         while True:
             worker = q.get()
-            ping = Ping(worker)
-            ping.syn_ping()
+            mode = PingType(worker)
+            mode.syn_ping()
             q.task_done()
     if mode == "a":
         while True:
             worker = q.get()
-            ping = Ping(worker)
-            ping.ack_ping()
+            mode = PingType(worker)
+            mode.ack_ping()
             q.task_done()
     if mode == "arp":
         while True:
             worker = q.get()
-            ping = Ping(worker)
-            ping.arp_ping()
+            mode = PingType(worker)
+            mode.arp_ping()
             q.task_done()
 
 
