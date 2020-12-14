@@ -141,7 +141,7 @@ def threader(mode_flag):
 if __name__ == "__main__":
     start_time = datetime.now()
     for x in range(100):
-        t = threading.Thread(target=threader, args=(args.mode,))
+        t = threading.Thread(target=threader, args=(args.mode_flag,))
         t.daemon = True
         t.start()
 
