@@ -116,26 +116,26 @@ def threader(mode_flag):
     Extract the task from the queue and assign it to the sweep function.
 
     """
-    if mode == "i":
+    if mode_flag == "i":
 
         while True:
             worker = q.get()
             mode = PingType(worker)
             mode.icmp_ping()
             q.task_done()
-    if mode == "s":
+    if mode_flag == "s":
         while True:
             worker = q.get()
             mode = PingType(worker)
             mode.syn_ping()
             q.task_done()
-    if mode == "a":
+    if mode_flag == "a":
         while True:
             worker = q.get()
             mode = PingType(worker)
             mode.ack_ping()
             q.task_done()
-    if mode == "arp":
+    if mode_flag == "arp":
         while True:
             worker = q.get()
             mode = PingType(worker)
