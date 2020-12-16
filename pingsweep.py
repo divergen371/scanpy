@@ -17,7 +17,12 @@ parser.add_argument(
     "network_cidr", help="network range Specifications (e.g 192.168.1.0/24)"
 )
 parser.add_argument(
-    "-m", "--mode", type=str, required=True, default="i", choices=["i", "a", "s", "arp"]
+    "-m",
+    "--mode_flag",
+    type=str,
+    required=True,
+    default="i",
+    choices=["i", "a", "s", "arp"],
 )
 args = parser.parse_args()
 
@@ -33,7 +38,7 @@ except KeyboardInterrupt:
     sys.exit(1)
 
 iface = conf.iface
-time_out = 3
+time_out = 2
 print_lock = threading.Lock()
 
 
