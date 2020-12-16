@@ -89,7 +89,7 @@ class PingType:
             if reply is None:
                 pass
             elif int(reply.getlayer(TCP).flags) == RST:
-                print("[*] {} is waking.".format(all_hosts[self]))
+                print("[*] {} is waking.".format(all_hosts[self.ip]))
 
     def arp_ping(self) -> None:
         conf.verb = 0
@@ -111,26 +111,26 @@ def threader(mode_flag):
     Extract the task from the queue and assign it to the sweep function.
 
     """
-    if mode_flag == "i":
+    if mode == "i":
 
         while True:
             worker = q.get()
             mode = PingType(worker)
             mode.icmp_ping()
             q.task_done()
-    if mode_flag == "s":
+    if mode == "s":
         while True:
             worker = q.get()
             mode = PingType(worker)
             mode.syn_ping()
             q.task_done()
-    if mode_flag == "a":
+    if mode == "a":
         while True:
             worker = q.get()
             mode = PingType(worker)
             mode.ack_ping()
             q.task_done()
-    if mode_flag == "arp":
+    if mode == "arp":
         while True:
             worker = q.get()
             mode = PingType(worker)
