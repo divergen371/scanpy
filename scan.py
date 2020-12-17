@@ -1,4 +1,5 @@
 import multiprocessing as mp
+from multiprocessing import Queue
 import sys
 from datetime import datetime
 from logging import ERROR, getLogger
@@ -65,12 +66,15 @@ def check_alive(ip):
 
 
 if __name__ == "__main__":
+    results_pool = []
     conf.verb = 0
     start = datetime.now()
     check_alive(target_ip)
     ports = range(int(min_port), int(max_port) + 1)
     pool = mp.Pool(processes=mp.cpu_count() * 10)
     results = pool.apply_async(scan, args=ports)
+    results_pool.append(results)
+    print(results)
     total_duration = datetime.now() - start
     print("\n[*]%s Scan complete" % target_ip)
     print("[*]Total time duration: " + str(total_duration))

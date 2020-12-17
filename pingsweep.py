@@ -52,7 +52,6 @@ class PingType:
         ip: int
             Figures taken from the worker. Based on this, retrieve the target from "all_host".
         """
-        conf.verb = 0
         reply = sr1(
             IP(dst=str(all_hosts[self.ip])) / ICMP(), timeout=time_out, iface=iface
         )
@@ -69,7 +68,6 @@ class PingType:
                 print("[*] {} is waking".format(all_hosts[self.ip]))
 
     def syn_ping(self) -> None:
-        conf.verb = 0
         SYNACK = 0x12
         RSTACK = 0x14
         reply = sr1(
@@ -84,7 +82,6 @@ class PingType:
                 print("[*] {} is waking".format(all_hosts[self.ip]))
 
     def ack_ping(self) -> None:
-        conf.verb = 0
         RST = 0x04
         reply = sr1(
             IP(dst=str(all_hosts[self.ip])) / TCP(dport=80, flags="A"),
@@ -97,7 +94,6 @@ class PingType:
                 print("[*] {} is waking.".format(all_hosts[self.ip]))
 
     def arp_ping(self) -> None:
-        conf.verb = 0
         ans, unans = srp(
             Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=str(all_hosts[self.ip])),
             timeout=time_out,
@@ -145,6 +141,7 @@ def threader(mode_flag):
 
 if __name__ == "__main__":
     start_time = datetime.now()
+    conf.verb = 0
     for x in range(100):
         t = threading.Thread(target=threader, args=(args.mode_flag,))
         t.daemon = True
