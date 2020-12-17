@@ -1,5 +1,5 @@
 import multiprocessing as mp
-from multiprocessing import Queue
+from multiprocessing import Queue, Process
 import sys
 from datetime import datetime
 from logging import ERROR, getLogger
@@ -40,18 +40,18 @@ def scan(port):
     try:
         src_port = RandShort()
         syn_pkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=port, flags="S"))
-        rst_pkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=port, flags="R"))
         return_pkt_flag = syn_pkt.getlayer(TCP).flags
         if return_pkt_flag == SYNACK:
-            print("[*] Port" + str(port) + " :Open")
-            send(rst_pkt)
             return True
         else:
-            send(rst_pkt)
             return False
+        rst_pkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=port, flags="R"))
+        send(rst_pkt)
     except KeyboardInterrupt:
         rstpkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=port, flags="R"))
         send(rstpkt)
+        print("exit.")
+        sys.exit(1)
 
 
 def check_alive(ip):
@@ -71,10 +71,11 @@ if __name__ == "__main__":
     start = datetime.now()
     check_alive(target_ip)
     ports = range(int(min_port), int(max_port) + 1)
-    pool = mp.Pool(processes=mp.cpu_count() * 10)
-    results = pool.apply_async(scan, args=ports)
-    results_pool.append(results)
-    print(results)
+    for port in ports:
+        status = scan(port)
+        if status:
+            print("Port {} is open.".format(port))
     total_duration = datetime.now() - start
+
     print("\n[*]%s Scan complete" % target_ip)
     print("[*]Total time duration: " + str(total_duration))

@@ -4,6 +4,7 @@ from datetime import datetime
 from logging import ERROR, getLogger
 from queue import Queue
 
+
 import argparse
 import netaddr
 from scapy.config import conf
