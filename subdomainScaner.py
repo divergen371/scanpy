@@ -38,3 +38,5 @@ for subdomain in fileIO.list_opener():
     else:
         print("[*] Discovered subdomain: {}".format(url))
         fileIO.discovered_subdomain_nameappend(url)
+
+fileIO.file_writing()
