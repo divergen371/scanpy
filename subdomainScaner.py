@@ -11,7 +11,7 @@ subdomains = name_list.splitlines()
 
 discovered_subdomains = []
 for subdomain in subdomains:
-    url = f"https://{subdomain}.{domain}"
+    url = f"http://{subdomain}.{domain}"
     try:
         requests.get(url)
     except requests.ConnectionError:
