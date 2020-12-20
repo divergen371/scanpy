@@ -36,25 +36,32 @@ SYNACK = 0x12
 RSTACK = 0x14
 
 
-def scan(port):
+def scan(dst_port: int) -> bool:
     try:
         src_port = RandShort()
-        syn_pkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=port, flags="S"))
+        syn_pkt = sr1(
+            IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="S"),
+            timeout=2,
+        )
+        if syn_pkt is None:
+            return False
         return_pkt_flag = syn_pkt.getlayer(TCP).flags
         if return_pkt_flag == SYNACK:
             return True
         else:
             return False
-        rst_pkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=port, flags="R"))
+        rst_pkt = sr1(
+            IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="R")
+        )
         send(rst_pkt)
     except KeyboardInterrupt:
-        rstpkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=port, flags="R"))
+        rstpkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="R"))
         send(rstpkt)
         print("exit.")
         sys.exit(1)
 
 
-def check_alive(ip):
+def check_alive(ip: str) -> None:
     print("[*] Scanning started at " + strftime("%H:%M:%S") + "!\n")
     try:
         sr1(IP(dst=ip) / ICMP())
