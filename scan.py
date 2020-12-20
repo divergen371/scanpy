@@ -1,8 +1,8 @@
-import multiprocessing as mp
-from multiprocessing import Queue, Process
 import sys
 from datetime import datetime
 from logging import ERROR, getLogger
+import threading
+from queue import Queue
 
 from scapy.config import conf
 from scapy.layers.inet import ICMP, IP, TCP
@@ -34,29 +34,32 @@ except KeyboardInterrupt:
 
 SYNACK = 0x12
 RSTACK = 0x14
+lock = threading.Lock()
 
 
-def scan(dst_port: int) -> bool:
+def scan(dst_port: int):
     try:
         src_port = RandShort()
         syn_pkt = sr1(
             IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="S"),
             timeout=2,
         )
-        if syn_pkt is None:
-            return False
-        return_pkt_flag = syn_pkt.getlayer(TCP).flags
-        if return_pkt_flag == SYNACK:
-            return True
-        else:
-            return False
-        rst_pkt = sr1(
-            IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="R")
-        )
-        send(rst_pkt)
+        rst_pkt = IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="R")
+        with lock:
+            if syn_pkt is None:
+                return None
+            return_pkt_flag = syn_pkt.getlayer(TCP).flags
+            if return_pkt_flag == SYNACK:
+                print("Port {} is open".format(dst_port))
+                send(rst_pkt)
+            else:
+                send(rst_pkt)
+                return False
+
     except KeyboardInterrupt:
-        rstpkt = sr1(IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="R"))
-        send(rstpkt)
+        src_port = RandShort()
+        rst_pkt = IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="R")
+        send(rst_pkt)
         print("exit.")
         sys.exit(1)
 
@@ -72,17 +75,30 @@ def check_alive(ip: str) -> None:
         sys.exit(1)
 
 
+def threader():
+    while True:
+        worker = q.get()
+        scan(worker)
+        q.task_done()
+
+
 if __name__ == "__main__":
-    results_pool = []
+    q = Queue()
     conf.verb = 0
-    start = datetime.now()
+    start_time = datetime.now()
     check_alive(target_ip)
     ports = range(int(min_port), int(max_port) + 1)
-    for port in ports:
-        status = scan(port)
-        if status:
-            print("Port {} is open.".format(port))
-    total_duration = datetime.now() - start
+
+    for x in range(100):
+        t = threading.Thread(target=threader)
+        t.setDaemon(True)
+        t.start()
+
+    for worker in ports:
+        q.put(worker)
+
+    q.join()
+    total_duration = datetime.now() - start_time
 
     print("\n[*]%s Scan complete" % target_ip)
     print("[*]Total time duration: " + str(total_duration))
