@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     for x in range(100):
         t = threading.Thread(target=threader)
-        t.setDaemon(True)
+        t.daemon = True
         t.start()
 
     for worker in ports:
