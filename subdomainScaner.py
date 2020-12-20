@@ -7,14 +7,14 @@ output_file_name = sys.argv[3]
 
 
 class FileIO:
-    def __init__(self, read, write):
+    def __init__(self, read: str, write: str):
         self.read = read
         self.write = write
         self._discovered_subdomains = []
 
-    def list_opener(self):
-        with open(self.read) as file:
-            name_list = file.read()
+    def list_opener(self) -> list[str]:
+        with open(self.read) as read_file:
+            name_list = read_file.read()
             subdomains = name_list.splitlines()
             return subdomains
 
@@ -23,7 +23,7 @@ class FileIO:
             for subdomain in self._discovered_subdomains:
                 print(subdomain, file=f)
 
-    def discovered_subdomain_nameappend(self, discosub):
+    def discovered_subdomain_nameappend(self, discosub: str) -> None:
         self._discovered_subdomains.append(discosub)
 
 
