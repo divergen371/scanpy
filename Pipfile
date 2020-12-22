@@ -19,6 +19,7 @@ cryptography = "*"
 graphviz = "*"
 vpython = "*"
 requests = "*"
+paramiko = "*"
 
 [requires]
 python_version = "3.9"
