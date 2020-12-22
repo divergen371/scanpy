@@ -3,6 +3,7 @@ import threading
 from datetime import datetime
 from logging import ERROR, getLogger
 from queue import Queue
+from colorama import init, Fore
 
 
 import argparse
@@ -11,6 +12,12 @@ from scapy.config import conf
 from scapy.layers.inet import ICMP, IP, TCP
 from scapy.layers.l2 import ARP, ARPingResult, Ether
 from scapy.sendrecv import sr1, srp
+
+init()
+GREEN = Fore.GREEN
+RED = Fore.RED
+RESET = Fore.RESET
+BLUE = Fore.BLUE
 
 getLogger("scapy.runtime").setLevel(ERROR)
 parser = argparse.ArgumentParser(prog="pingsweep.py")
@@ -38,6 +45,7 @@ except KeyboardInterrupt:
     print("[*] Bye:)")
     sys.exit(1)
 
+
 iface = conf.iface
 time_out = 2
 print_lock = threading.Lock()
@@ -58,15 +66,15 @@ class PingType:
         )
         with print_lock:
             if reply is None:
-                print("[*] {} is not running.".format(all_hosts[self.ip]))
+                print(f"{RED}[*] {all_hosts[self.ip]} is not running.{RESET}")
             elif (
                 int(reply.getlayer(ICMP).type) == 3
                 and int(reply.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13])
                 and reply is None
             ):
-                print("[*] {} is down".format(all_hosts[self.ip]))
+                print(f"{RED}[*] {all_hosts[self.ip]} is down{RESET}")
             else:
-                print("[*] {} is waking".format(all_hosts[self.ip]))
+                print(f"[*] {all_hosts[self.ip]} {GREEN} is waking{RESET}")
 
     def syn_ping(self) -> None:
         SYNACK = 0x12
@@ -80,7 +88,7 @@ class PingType:
             if reply is None:
                 pass
             elif int(reply.getlayer(TCP).flags) in [SYNACK, RSTACK]:
-                print("[*] {} is waking".format(all_hosts[self.ip]))
+                print(f"[*] {all_hosts[self.ip]} {GREEN}is waking{RESET}")
 
     def ack_ping(self) -> None:
         RST = 0x04
@@ -92,7 +100,7 @@ class PingType:
             if reply is None:
                 pass
             elif int(reply.getlayer(TCP).flags) == RST:
-                print("[*] {} is waking.".format(all_hosts[self.ip]))
+                print(f"[*] {all_hosts[self.ip]} {GREEN} is waking.{RESET}")
 
     def arp_ping(self) -> None:
         ans, unans = srp(
@@ -157,4 +165,4 @@ if __name__ == "__main__":
     q.join()
 
     total_duration = datetime.now() - start_time
-    print("[*]Total time duration: " + str(total_duration))
+    print(f"{BLUE}[*]Total time duration: {str(total_duration)}{RESET}")
