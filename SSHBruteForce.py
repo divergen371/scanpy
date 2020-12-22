@@ -29,7 +29,7 @@ def ssh_checker(hostname, username, password):
         return ssh_checker(hostname, username, password)
     else:
         print(
-            f"{GREEN}[+] Found combination: \n\t)HOSTNAME: {hostname}\n\tUSERNAME: {username}\n"
+            f"{GREEN}[+] Found combination: \n\tHOSTNAME: {hostname}\n\tUSERNAME: {username}\n"
             f"\tPASSWORD: {password}{RESET} "
         )
         return True
@@ -47,9 +47,10 @@ if __name__ == "__main__":
     host = args.host
     passlist = args.passlist
     user = args.user
-    with open(passlist).read() as readlist:
-        take_form_list = readlist.splitlines()
-    for password in take_form_list:
+    with open(passlist) as readlist:
+      take_from_list = readlist.read().splitlines()
+    for password in take_from_list:
         if ssh_checker(host, user, password):
             with open("credential_pairs.txt", "w") as w:
                 w.write(f"{user}@{host}: {password}")
+                break
