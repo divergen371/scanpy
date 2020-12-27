@@ -20,6 +20,7 @@ graphviz = "*"
 vpython = "*"
 requests = "*"
 paramiko = "*"
+dnspython = "*"
 
 [requires]
 python_version = "3.9"
