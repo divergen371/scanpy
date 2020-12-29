@@ -48,6 +48,7 @@ def scan(dst_port: int):
             if return_pkt_flag == SYNACK:
                 print("Port {} is open".format(dst_port))
                 send(rst_pkt)
+                return True
             else:
                 send(rst_pkt)
                 return False
