@@ -22,7 +22,7 @@ def ssh_checker(hostname, username, password, port):
             port=port,
         )
     except socket.timeout:
-        print(f"{RED}[!] Host: {host_ip} is unreachable, timed out.{RESET}")
+        print(f"{RED}[!] Host: {hostname} is unreachable, timed out.{RESET}")
         return False
     except AuthenticationException:
         print(f"[!] Invalid credentials for {username}:{password}")
@@ -30,10 +30,10 @@ def ssh_checker(hostname, username, password, port):
     except SSHException:
         print(f"{BLUE}[*] Stand by for retry, wait one minute....{RESET}")
         time.sleep(60)
-        return ssh_checker(host_ip, username, password, port)
+        return ssh_checker(hostname, username, password, port)
     else:
         print(
-            f"{GREEN}[+] Found combination: \n\tHOSTNAME: {host_ip}\n\tUSERNAME: {username}\n"
+            f"{GREEN}[+] Found combination: \n\tHOSTNAME: {hostname}\n\tUSERNAME: {username}\n"
             f"\tPASSWORD: {password}{RESET} "
         )
         return True
@@ -55,10 +55,10 @@ def main():
 
     args = parser.parse_args()
     host_ip = args.host
-    pass_list = args.passlist
+    pass_list_file = args.passlist
     user_name = args.user
     port_num = args.port
-    with open(pass_list) as rpass:
+    with open(pass_list_file) as rpass:
         pass_list = rpass.read().splitlines()
 
     for password in pass_list:

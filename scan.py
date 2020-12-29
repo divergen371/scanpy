@@ -11,25 +11,21 @@ from scapy.volatile import RandShort
 from time import strftime
 
 getLogger("scapy.runtime").setLevel(ERROR)
-try:
-    target_ip = input("[*] Enter Target IP address :")
-    min_port = input("[*] Enter Min Port Number: ")
-    max_port = input("[*] Enter Max Port Number: ")
 
-    try:
-        if 0 <= int(min_port) <= int(max_port) and int(max_port) >= 0:
-            pass
-        else:
-            print("\n[!] Invalid Range of Ports")
-            print("[!] Exiting...")
-            sys.exit(1)
-    except Exception:
+target_ip = input("[*] Enter Target IP address :")
+min_port = input("[*] Enter Min Port Number: ")
+max_port = input("[*] Enter Max Port Number: ")
+
+try:
+    if 0 <= int(min_port) <= int(max_port) and int(max_port) >= 0:
+        pass
+    else:
         print("\n[!] Invalid Range of Ports")
         print("[!] Exiting...")
         sys.exit(1)
-except KeyboardInterrupt:
-    print("\n[*] User Requested Shutdown...")
-    print("[*] Exiting...")
+except Exception:
+    print("\n[!] Invalid Range of Ports")
+    print("[!] Exiting...")
     sys.exit(1)
 
 SYNACK = 0x12
