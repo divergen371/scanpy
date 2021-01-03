@@ -1,3 +1,6 @@
+"""
+Multi threaded host discovery script.
+"""
 import sys
 import threading
 from datetime import datetime

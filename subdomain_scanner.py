@@ -1,3 +1,6 @@
+"""
+Subdomain scanner.
+"""
 import requests
 import sys
 

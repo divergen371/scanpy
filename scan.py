@@ -1,3 +1,6 @@
+"""
+Multi threaded port scanner with scapy.
+"""
 import sys
 from datetime import datetime
 from logging import ERROR, getLogger
