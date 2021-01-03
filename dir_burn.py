@@ -40,8 +40,8 @@ def bruter(word_queue, extentions=None):
             attempt_list.append(f"/{attempt}")
 
         if extentions:
-            for extention in extentions:
-                attempt_list.append(f"/{attempt}{extention}")
+            for extension in extentions:
+                attempt_list.append(f"/{attempt}{extension}")
 
         for brute in attempt_list:
             url = f"{target}{brute}"
@@ -57,11 +57,11 @@ def bruter(word_queue, extentions=None):
 
 def main():
     word_queue = wordlist_builder(wordlist)
-    extentions = [".php", ".bak", ".orig", ".inc"]
+    extensions = [".php", ".bak", ".orig", ".inc"]
 
     print("[*] Start...")
     for i in range(threads):
-        t = Thread(target=bruter, args=[word_queue, extentions])
+        t = Thread(target=bruter, args=[word_queue, extensions])
         t.daemon = True
         t.start()
 
