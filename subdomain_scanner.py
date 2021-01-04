@@ -2,6 +2,7 @@
 Subdomain scanner.
 """
 import requests
+from requests import ConnectionError, Timeout
 import sys
 from threading import Thread, Lock
 from queue import Queue
@@ -23,6 +24,7 @@ class FileIO:
             return subdomains
 
     def file_writing(self):
+        self._discovered_subdomains.sort()
         with open(self.write, "w") as f:
             for subdomain in self._discovered_subdomains:
                 print(subdomain, file=f)
@@ -40,7 +42,7 @@ def scan_subdomain(domain):
         url = f"http://{subdomain}.{domain}"
         try:
             requests.get(url, timeout=(3, 10))
-        except (requests.ConnectionError, requests.exceptions.Timeout):
+        except (ConnectionError, Timeout):
             pass
         else:
             print("[*] Discovered subdomain: {}".format(url))
