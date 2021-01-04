@@ -23,6 +23,7 @@ paramiko = "*"
 dnspython = "*"
 beautifulsoup4 = "*"
 mechanize = "*"
+pysocks = "*"
 
 [requires]
 python_version = "3.9"

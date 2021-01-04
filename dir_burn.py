@@ -2,13 +2,11 @@
 Directory and file bruteforce script from black hat python.
 """
 import sys
+import argparse
 import requests
 from threading import Thread
 from queue import Queue
 
-threads = 10
-target = sys.argv[1]
-wordlist = sys.argv[2]
 resume_state = None
 user_agent = "Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0"
 
@@ -30,7 +28,7 @@ def wordlist_builder(wordlist) -> Queue:
     return words
 
 
-def bruter(word_queue, extentions=None):
+def bruter(word_queue, target, extentions=None):
     while not word_queue.empty():
         attempt = word_queue.get()
         attempt_list = []
@@ -47,6 +45,11 @@ def bruter(word_queue, extentions=None):
             url = f"{target}{brute}"
             try:
                 headers = {"User_Agent": user_agent}
+                # proxy = {
+                #     "http": "socks5://127.0.0.1:9050",
+                #     "https": "socks5://127.0.0.1:9050",
+                # }
+                # r = requests.get(url, headers=headers, proxy=proxy)
                 r = requests.get(url, headers=headers)
                 if r.status_code != 404:
                     print(f"[{r.status_code}] => {url}")
@@ -56,12 +59,28 @@ def bruter(word_queue, extentions=None):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Directory and file bruteforce script from black hat python."
+    )
+    parser.add_argument("-u", dest="target", help="IP address of target.")
+    parser.add_argument("-w", dest="wordlist", help="Path to wordlist.")
+    parser.add_argument(
+        "-t",
+        dest="threads",
+        help="Maximum number of threads(default value 10)",
+        default=10,
+        type=int,
+    )
+    args = parser.parse_args()
+    wordlist = args.wordlist
+    target = args.target
+    threads = args.threads
     word_queue = wordlist_builder(wordlist)
     extensions = [".php", ".bak", ".orig", ".inc"]
 
     print("[*] Start...")
     for i in range(threads):
-        t = Thread(target=bruter, args=[word_queue, extensions])
+        t = Thread(target=bruter, args=[word_queue, target, extensions])
         t.daemon = True
         t.start()
 
