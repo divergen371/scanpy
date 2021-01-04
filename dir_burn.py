@@ -1,7 +1,6 @@
 """
 Directory and file bruteforce script from black hat python.
 """
-import sys
 import argparse
 import requests
 from threading import Thread
