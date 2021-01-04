@@ -3,10 +3,11 @@ Subdomain scanner.
 """
 import requests
 import sys
+from threading import Thread, Lock
+from queue import Queue
 
-domain = sys.argv[1]
-file = sys.argv[2]
-output_file_name = sys.argv[3]
+
+lock = Lock()
 
 
 class FileIO:
@@ -30,16 +31,38 @@ class FileIO:
         self._discovered_subdomains.append(discosub)
 
 
-fileIO = FileIO(file, output_file_name)
+q = Queue()
 
-for subdomain in fileIO.list_opener():
-    url = f"http://{subdomain}.{domain}"
-    try:
-        requests.get(url)
-    except requests.ConnectionError:
-        pass
-    else:
-        print("[*] Discovered subdomain: {}".format(url))
-        fileIO.discovered_subdomain_nameappend(url)
 
-fileIO.file_writing()
+def scan_subdomain(domain):
+    while True:
+        subdomain = q.get()
+        url = f"http://{subdomain}.{domain}"
+        try:
+            requests.get(url, timeout=(3, 10))
+        except (requests.ConnectionError, requests.exceptions.Timeout):
+            pass
+        else:
+            print("[*] Discovered subdomain: {}".format(url))
+            with lock:
+                fileIO.discovered_subdomain_nameappend(url)
+        q.task_done()
+
+
+if __name__ == "__main__":
+    domain = sys.argv[1]
+    file = sys.argv[2]
+    output_file_name = sys.argv[3]
+    fileIO = FileIO(file, output_file_name)
+
+    for subdomain in fileIO.list_opener():
+        q.put(subdomain)
+
+    for i in range(10):
+        w = Thread(target=scan_subdomain, args=(domain,))
+        w.daemon = True
+        w.start()
+
+    q.join()
+
+    fileIO.file_writing()
