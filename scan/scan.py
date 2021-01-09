@@ -40,16 +40,17 @@ def scan(dst_port: int):
     try:
         src_port = RandShort()
         syn_pkt = sr1(
-            IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="S"),
+            IP(dst=target_ip) / TCP(dport=dst_port, flags="S"),
             timeout=2,
         )
         rst_pkt = IP(dst=target_ip) / TCP(sport=src_port, dport=dst_port, flags="R")
         with lock:
             if syn_pkt is None:
+                print(f"Port {dst_port} is filtered")
                 return None
             return_pkt_flag = syn_pkt.getlayer(TCP).flags
             if return_pkt_flag == SYNACK:
-                print("Port {} is open".format(dst_port))
+                print(f"Port {dst_port} is open")
                 send(rst_pkt)
                 return True
             else:
@@ -68,7 +69,7 @@ def check_alive(ip: str) -> None:
     print("[*] Scanning started at " + strftime("%H:%M:%S") + "!\n")
     try:
         sr1(IP(dst=ip) / ICMP())
-        print("\n[*] Target found! %s is waking" % target_ip)
+        print(f"\n[*] Target found! {ip} is waking")
     except Exception:
         print("\n[!] Target not found")
         print("[*] Exiting...")
