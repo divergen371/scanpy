@@ -29,7 +29,7 @@ def ssh_checker(hostname, username, password, port):
         print(f"{RED}[!] Host: {hostname} is unreachable, timed out.{RESET}")
         return False
     except AuthenticationException:
-        print(f"[!] Invalid credentials for {username}:{password}")
+        print(f"{RED}[!]{RESET} Invalid credentials for {username}:{password}")
         return False
     except SSHException:
         print(f"{BLUE}[*] Stand by for retry, wait one minute....{RESET}")
@@ -64,7 +64,11 @@ def main():
     user_name = args.user
     port_num = args.port
     with open(pass_list_file) as rpass:
-        pass_list = rpass.read().splitlines()
+        pass_list_dict = {}
+        for word in rpass.read().splitlines():
+            pass_list_dict[word] = None
+
+        pass_list = pass_list_dict
 
     for password in pass_list:
         if ssh_checker(host_ip, user_name, password, port_num):
