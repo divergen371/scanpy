@@ -24,6 +24,7 @@ beautifulsoup4 = "*"
 mechanize = "*"
 pysocks = "*"
 pycryptodome = "*"
+pwntools = "*"
 
 [requires]
 python_version = "3.9"

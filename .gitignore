@@ -302,3 +302,5 @@ pip-selfcheck.json
 Pipfile.lock
 .pylintrc
 */pass*
+./pwntools_example_f93ca6ccef2def755aa8f6d9aa6e9c5b.py
+./13377_43de0a0efed6ed7bd890d1c79db22fb1.py
